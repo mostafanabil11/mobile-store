@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — a quiet, monochrome palette. Colour comes from the products
+ * themselves; the interface stays out of the way.
+ */
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f5f5f7;
+  --bg-sunken: #ececf0;
+  --ink: #1d1d1f;
+  --ink-2: #424245;
+  --muted: #6e6e73;
+  --faint: #86868b;
+  --line: #d2d2d7;
+  --line-soft: #e8e8ed;
+  --night: #000000;
+  --night-2: #161617;
+  --accent: #0066cc;
+  --success: #1f8a4c;
+  --warn: #b26b00;
+  --danger: #c4314b;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-soft: var(--bg-soft);
+  --color-bg-sunken: var(--bg-sunken);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-night: var(--night);
+  --color-night-2: var(--night-2);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-inter), "Helvetica Neue", Arial,
+    sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-inter), "Helvetica Neue",
+    Arial, sans-serif;
+
+  --ease-apple: cubic-bezier(0.28, 0.11, 0.32, 1);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: #1d1d1f;
+  color: #fff;
+}
+
+/* Display type: tight tracking, generous size. */
+.display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Gentle reveal used across the storefront. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 0.9s var(--ease-apple) both;
+}
+.rise-1 {
+  animation-delay: 0.08s;
+}
+.rise-2 {
+  animation-delay: 0.16s;
+}
+.rise-3 {
+  animation-delay: 0.24s;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-soft);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: shimmer 1.4s infinite;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .skeleton::after {
+    animation: none;
+  }
+}
