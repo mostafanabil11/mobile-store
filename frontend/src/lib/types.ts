@@ -46,6 +46,7 @@ export interface Paginated<T> {
 
 export interface Facets {
   categories: Partial<Record<Category, number>>;
+  categoryFrom: Partial<Record<Category, number>>;
   conditions: Partial<Record<Condition, number>>;
   storages: string[];
   price: { min: number; max: number };

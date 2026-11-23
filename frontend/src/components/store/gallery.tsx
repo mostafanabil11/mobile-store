@@ -12,8 +12,8 @@ export function Gallery({ product }: { product: Product }) {
   return (
     <div className="space-y-3">
       <div className="relative aspect-square overflow-hidden rounded-[32px] bg-bg-soft">
-        <div key={index} className="rise absolute inset-10 bg-bg-soft sm:inset-14">
-          <ProductMedia product={product} index={index} sizes="(max-width: 1024px) 100vw, 55vw" priority iconSize={44} />
+        <div key={index} className="fade absolute inset-10 bg-bg-soft sm:inset-14">
+          <ProductMedia product={product} index={index} sizes="(max-width: 1024px) 100vw, 55vw" eager={index === 0} iconSize={44} />
         </div>
       </div>
       {count > 1 && (

@@ -8,12 +8,13 @@ interface Props {
   index?: number;
   className?: string;
   sizes?: string;
-  priority?: boolean;
+  /** Above-the-fold image: load immediately with high priority. */
+  eager?: boolean;
   iconSize?: number;
 }
 
 /** A product photo when one exists, otherwise a neutral placeholder. */
-export function ProductMedia({ product, index = 0, className, sizes = "(max-width: 768px) 100vw, 33vw", priority, iconSize }: Props) {
+export function ProductMedia({ product, index = 0, className, sizes = "(max-width: 768px) 100vw, 33vw", eager, iconSize }: Props) {
   const src = product.images[index];
   if (src) {
     return (
@@ -22,7 +23,8 @@ export function ProductMedia({ product, index = 0, className, sizes = "(max-widt
         alt={product.name}
         fill
         sizes={sizes}
-        priority={priority}
+        loading={eager ? "eager" : "lazy"}
+        fetchPriority={eager ? "high" : undefined}
         unoptimized
         className={cn("object-contain mix-blend-multiply", className)}
       />

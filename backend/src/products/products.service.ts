@@ -64,7 +64,10 @@ export class ProductsService implements OnApplicationBootstrap {
   async facets() {
     const match = { status: { $in: PUBLIC_STATUSES } };
     const [categories, conditions, storages, price] = await Promise.all([
-      this.products.aggregate([{ $match: match }, { $group: { _id: '$category', count: { $sum: 1 } } }]),
+      this.products.aggregate([
+        { $match: match },
+        { $group: { _id: '$category', count: { $sum: 1 }, min: { $min: '$price' } } },
+      ]),
       this.products.aggregate([{ $match: match }, { $group: { _id: '$condition', count: { $sum: 1 } } }]),
       this.products.distinct('storage', match),
       this.products.aggregate([
@@ -76,6 +79,8 @@ export class ProductsService implements OnApplicationBootstrap {
       Object.fromEntries(rows.map((r) => [r._id, r.count]));
     return {
       categories: toMap(categories),
+      /** Lowest listed price per category, for "from EGP …" labels. */
+      categoryFrom: Object.fromEntries(categories.map((r: { _id: string; min: number }) => [r._id, r.min])),
       conditions: toMap(conditions),
       storages: (storages.filter(Boolean) as string[]).sort(
         (a, b) => parseStorage(a) - parseStorage(b),

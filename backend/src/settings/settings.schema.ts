@@ -8,7 +8,7 @@ export class Settings {
   @Prop({ default: 'Apple devices. Curated.' }) tagline: string;
   /** International format, digits only, e.g. 201001234567 */
   @Prop({ default: '' }) whatsappNumber: string;
-  @Prop({ default: 'USD' }) currency: string;
+  @Prop({ default: 'EGP' }) currency: string;
   @Prop({ default: '' }) phone: string;
   @Prop({ default: '' }) email: string;
   @Prop({ default: '' }) address: string;

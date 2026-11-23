@@ -4,7 +4,7 @@ import type { Product, StoreSettings } from "./types";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
 /** Builds the prefilled WhatsApp message for a product enquiry. */
-export function productMessage(product: Product, settings: StoreSettings) {
+export function productMessage(product: Product, settings: Pick<StoreSettings, "currency" | "whatsappGreeting">) {
   const lines = [
     settings.whatsappGreeting || "Hello! I'm interested in this item:",
     "",

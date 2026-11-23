@@ -73,7 +73,7 @@ export default function SettingsPage() {
           <CardHeader title="Store" />
           <div className="grid gap-4 p-6 sm:grid-cols-2">
             <Field label="Store name">{input("storeName")}</Field>
-            <Field label="Currency" hint="ISO code: USD, EGP, AED, SAR, EUR…">
+            <Field label="Currency" hint="ISO code: EGP, USD, AED, SAR, EUR…">
               {input("currency", { maxLength: 8 })}
             </Field>
             <Field label="Tagline" className="sm:col-span-2">

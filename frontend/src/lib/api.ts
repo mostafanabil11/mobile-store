@@ -23,7 +23,7 @@ const DEFAULT_SETTINGS: StoreSettings = {
   storeName: "Orchard",
   tagline: "Apple devices. Curated.",
   whatsappNumber: "",
-  currency: "USD",
+  currency: "EGP",
   phone: "",
   email: "",
   address: "",

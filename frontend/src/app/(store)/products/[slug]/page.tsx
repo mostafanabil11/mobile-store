@@ -10,6 +10,7 @@ import {
   BoxIcon,
   ChevronRight,
   GlobeIcon,
+  PinIcon,
   ShieldIcon,
   SparkleIcon,
   WhatsAppIcon,
@@ -67,8 +68,10 @@ async function ProductDetail({ params }: { params: Promise<{ slug: string }> }) 
       </section>
 
       <Suspense fallback={null}>
-        <Related slug={product.slug} currency={settings.currency} />
+        <Related slug={product.slug} settings={settings} />
       </Suspense>
+
+      <MobileBuyBar product={product} settings={settings} />
     </>
   );
 }
@@ -87,7 +90,7 @@ function Info({ product, settings }: { product: Product; settings: StoreSettings
   ].filter(Boolean) as { icon: typeof ShieldIcon; label: string; value: string }[];
 
   return (
-    <div className="rise">
+    <div>
       <div className="flex flex-wrap items-center gap-2">
         <span
           className={cn(
@@ -146,9 +149,10 @@ function Info({ product, settings }: { product: Product; settings: StoreSettings
         <ShareButton title={product.name} />
       </div>
       <p className="mt-3 text-[13px] text-muted">
-        No online checkout. Message us to reserve it, ask questions or arrange a visit — your message includes this
-        product&apos;s details.
+        No online checkout — your WhatsApp message already includes this device&apos;s details.
       </p>
+
+      <TrustRow product={product} />
 
       {facts.length > 0 && (
         <dl className="mt-10 divide-y divide-line-soft border-y border-line-soft">
@@ -210,7 +214,7 @@ function BatteryMeter({ value }: { value: number }) {
   );
 }
 
-async function Related({ slug, currency }: { slug: string; currency: string }) {
+async function Related({ slug, settings }: { slug: string; settings: StoreSettings }) {
   const items = await getRelated(slug);
   if (!items.length) return null;
   return (
@@ -219,7 +223,7 @@ async function Related({ slug, currency }: { slug: string; currency: string }) {
         <h2 className="display mb-8 text-[32px]">You may also like.</h2>
         <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {items.map((p) => (
-            <ProductCard key={p.id} product={p} currency={currency} />
+            <ProductCard key={p.id} product={p} settings={settings} />
           ))}
         </div>
       </div>
@@ -237,6 +241,52 @@ function DetailSkeleton() {
         <div className="skeleton h-5 w-1/2 rounded-full" />
         <div className="skeleton mt-6 h-9 w-32 rounded-xl" />
         <div className="skeleton mt-6 h-[52px] w-full rounded-full" />
+      </div>
+    </div>
+  );
+}
+
+/** Small reassurance grid under the main button. */
+function TrustRow({ product }: { product: Product }) {
+  const items = [
+    { icon: SparkleIcon, title: "Inspected & tested", body: "Checked before it was listed" },
+    { icon: ShieldIcon, title: "Warranty", body: product.warranty || "Store warranty included" },
+    { icon: WhatsAppIcon, title: "Reserve on WhatsApp", body: "We hold it for you" },
+    { icon: PinIcon, title: "Try it in store", body: "See it before you pay" },
+  ];
+  return (
+    <ul className="mt-8 grid grid-cols-2 gap-2">
+      {items.map(({ icon: Icon, title, body }) => (
+        <li key={title} className="flex gap-3 rounded-2xl bg-bg-soft p-3.5 sm:p-4">
+          <Icon size={18} className="mt-0.5 shrink-0 text-ink-2" />
+          <span className="min-w-0">
+            <span className="block text-[13px] font-semibold">{title}</span>
+            <span className="block truncate text-[12px] text-muted">{body}</span>
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Phones only: price + WhatsApp button pinned to the bottom of the screen. */
+function MobileBuyBar({ product, settings }: { product: Product; settings: StoreSettings }) {
+  if (!settings.whatsappNumber) return null;
+  return (
+    <div className="buy-bar fixed inset-x-0 bottom-0 z-40 border-t border-black/5 bg-white/90 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3 backdrop-blur-xl lg:hidden">
+      <div className="mx-auto flex max-w-[640px] items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[13px] text-muted">{product.name}</p>
+          <p className="text-[17px] font-semibold">{formatPrice(product.price, settings.currency)}</p>
+        </div>
+        <a
+          href={whatsappLink(settings.whatsappNumber, productMessage(product, settings))}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex h-11 shrink-0 items-center gap-2 rounded-full bg-ink px-5 text-[15px] font-medium text-white"
+        >
+          <WhatsAppIcon size={17} /> Ask on WhatsApp
+        </a>
       </div>
     </div>
   );

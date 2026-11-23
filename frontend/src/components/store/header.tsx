@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { getSettings } from "@/lib/api";
 import { SearchIcon } from "../ui/icons";
 import { MobileMenu } from "./mobile-menu";
+import { NavLinks, NavLinksStatic } from "./nav-links";
 
 export const NAV = [
   { href: "/products?category=iphone", label: "iPhone" },
@@ -41,13 +42,10 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-black/[0.06] bg-white/72 backdrop-blur-xl backdrop-saturate-150">
       <div className="mx-auto flex h-12 max-w-[1120px] items-center justify-between px-5">
         <Logo />
-        <nav className="hidden items-center gap-7 text-[13px] text-ink-2 md:flex">
-          {NAV.map((item) => (
-            <Link key={item.href} href={item.href} className="transition-colors hover:text-ink">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        {/* Reads the URL to find the active item, so it streams in behind a static fallback. */}
+        <Suspense fallback={<NavLinksStatic items={NAV} />}>
+          <NavLinks items={NAV} />
+        </Suspense>
         <div className="flex items-center gap-1">
           <Link
             href="/products"

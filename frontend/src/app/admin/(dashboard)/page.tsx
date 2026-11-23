@@ -22,7 +22,7 @@ export default function OverviewPage() {
       .catch((e: Error) => setError(e.message));
   }, []);
 
-  const currency = settings?.currency ?? "USD";
+  const currency = settings?.currency ?? "EGP";
   const cards = [
     { label: "Listed in store", value: stats ? (stats.byStatus.available ?? 0) + (stats.byStatus.reserved ?? 0) : null },
     { label: "Available", value: stats?.byStatus.available ?? (stats ? 0 : null) },

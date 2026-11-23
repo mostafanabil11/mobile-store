@@ -405,7 +405,7 @@ export function ProductForm({ id }: { id?: string }) {
           <Card>
             <CardHeader title="Price & condition" />
             <div className="grid gap-4 p-6 sm:grid-cols-3">
-              <Field label={`Price (${settings?.currency ?? "USD"})`} error={showErrors.price}>
+              <Field label={`Price (${settings?.currency ?? "EGP"})`} error={showErrors.price}>
                 <Input inputMode="decimal" value={form.price} onChange={(e) => set("price", e.target.value)} placeholder="0" />
               </Field>
               <Field label="Compare-at price" hint="Optional, shown struck through" error={showErrors.compareAtPrice}>

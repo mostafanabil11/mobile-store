@@ -23,7 +23,7 @@ export default function AdminProductsPage() {
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
   const [data, setData] = useState<Paginated<Product> | null>(null);
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState("EGP");
   const [error, setError] = useState<string | null>(null);
   const [filling, setFilling] = useState(false);
   const [fillResult, setFillResult] = useState<string | null>(null);

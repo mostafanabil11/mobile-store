@@ -51,9 +51,10 @@ export function Filters({ current, facets, total }: { current: FilterState; face
   const active = current.category || current.condition || current.storage || current.q;
 
   return (
-    <div className={cn("space-y-5 transition-opacity", pending && "opacity-60")}>
+    // A fragment, not a wrapper: the sticky bar's parent must be the tall page column for it to stay stuck.
+    <>
       {/* Categories */}
-      <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5">
+      <div className="no-scrollbar -mx-5 mb-4 flex gap-2 overflow-x-auto px-5">
         <Pill active={!current.category} onClick={() => go({ category: undefined, storage: undefined })}>
           All
         </Pill>
@@ -65,7 +66,12 @@ export function Filters({ current, facets, total }: { current: FilterState; face
         ))}
       </div>
 
-      <div className="flex flex-col gap-3 border-y border-line-soft py-4 lg:flex-row lg:items-center lg:justify-between">
+      <div
+        className={cn(
+          "sticky top-12 z-30 -mx-5 flex flex-col gap-3 border-y border-line-soft bg-white/85 px-5 py-3 backdrop-blur-xl backdrop-saturate-150 transition-opacity lg:flex-row lg:items-center lg:justify-between",
+          pending && "opacity-70",
+        )}
+      >
         <div className="flex flex-wrap items-center gap-2">
           <Segmented
             value={current.condition ?? ""}
@@ -110,10 +116,10 @@ export function Filters({ current, facets, total }: { current: FilterState; face
         </div>
       </div>
 
-      <p className="text-[13px] text-muted">
+      <p className="mt-4 text-[13px] text-muted">
         {total} {total === 1 ? "item" : "items"}
       </p>
-    </div>
+    </>
   );
 }
 

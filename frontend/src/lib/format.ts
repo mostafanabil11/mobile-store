@@ -22,7 +22,7 @@ export const STATUS_LABELS: Record<Status, string> = {
   hidden: "Hidden",
 };
 
-export function formatPrice(value: number, currency = "USD") {
+export function formatPrice(value: number, currency = "EGP") {
   try {
     return new Intl.NumberFormat("en-US", {
       style: "currency",

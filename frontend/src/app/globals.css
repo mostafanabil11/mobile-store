@@ -80,11 +80,11 @@ body {
   text-transform: uppercase;
 }
 
-/* Gentle reveal used across the storefront. */
+/* Gentle reveal for static content only (never on streamed-in data, so nothing sits half-faded). */
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -92,16 +92,29 @@ body {
   }
 }
 .rise {
-  animation: rise 0.9s var(--ease-apple) both;
+  animation: rise 0.5s var(--ease-apple) both;
 }
 .rise-1 {
-  animation-delay: 0.08s;
+  animation-delay: 0.05s;
 }
 .rise-2 {
-  animation-delay: 0.16s;
+  animation-delay: 0.1s;
 }
 .rise-3 {
-  animation-delay: 0.24s;
+  animation-delay: 0.15s;
+}
+
+/* Quick crossfade, e.g. when switching gallery photos. */
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.fade {
+  animation: fade 0.3s ease both;
 }
 
 @keyframes shimmer {
@@ -130,8 +143,16 @@ body {
   scrollbar-width: none;
 }
 
+/* Leave room for the product page's mobile buy bar so it never covers the footer. */
+@media (max-width: 1023px) {
+  body:has(.buy-bar) footer {
+    padding-bottom: 84px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rise,
+  .fade,
   .skeleton::after {
     animation: none;
   }

@@ -1,14 +1,30 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { type FilterState, Filters } from "@/components/store/filters";
 import { ProductCard, ProductGridSkeleton } from "@/components/store/product-card";
 import { ChevronLeft, ChevronRight } from "@/components/ui/icons";
 import { getFacets, getProducts, getSettings } from "@/lib/api";
-import { CATEGORY_LABELS, CONDITION_LABELS, cn } from "@/lib/format";
-import type { Category, Condition } from "@/lib/types";
+import { CATEGORY_LABELS, CONDITION_LABELS, cn, formatPrice } from "@/lib/format";
+import { CATEGORIES, type Category, type Condition } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Shop" };
+
+const CATEGORY_INTRO: Record<Category, string> = {
+  iphone: "New, open box and pre-owned iPhone. Every unit inspected, every detail on the page.",
+  ipad: "iPad for drawing, studying, work and everything in between.",
+  mac: "MacBook and Mac, ready to take home today.",
+  watch: "Apple Watch for health, fitness and staying connected.",
+  airpods: "AirPods and AirPods Max, sealed and open box.",
+  accessories: "Chargers, cases, MagSafe and the extras that go with them.",
+};
+
+const CONDITION_INTRO: Record<Condition, string> = {
+  new: "Sealed devices with full Apple warranty.",
+  "open-box": "Opened, barely used, and priced below new.",
+  used: "Checked, tested and honestly described — battery health included.",
+};
 
 type Search = Record<string, string | string[] | undefined>;
 const pick = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || undefined;
@@ -40,15 +56,35 @@ async function Catalog({ searchParams }: { searchParams: Promise<Search> }) {
     getProducts({ ...current, page: String(page), limit: "24" }).catch(() => null),
   ]);
 
-  const title = current.category
-    ? CATEGORY_LABELS[current.category as Category] ?? "Shop"
-    : current.condition
-      ? CONDITION_LABELS[current.condition as Condition] ?? "Shop"
-      : "Shop all";
+  const category = CATEGORIES.includes(current.category as Category) ? (current.category as Category) : undefined;
+  const condition = current.condition as Condition | undefined;
+  const title = category ? CATEGORY_LABELS[category] : condition ? CONDITION_LABELS[condition] ?? "Shop" : "Shop all";
+  const intro = category
+    ? CATEGORY_INTRO[category]
+    : condition
+      ? CONDITION_INTRO[condition]
+      : "New, open box and pre-owned Apple devices — all in stock and ready to see in store.";
+  const from = category ? facets?.categoryFrom?.[category] : facets?.price.min;
 
   return (
     <>
-      <h1 className="display rise mb-8 text-[44px] sm:text-[56px]">{title}</h1>
+      <header className="mb-8 flex items-center justify-between gap-6 rounded-[28px] bg-bg-soft px-6 py-7 sm:px-10 sm:py-10">
+        <div className="min-w-0">
+          <h1 className="display text-[38px] sm:text-[52px]">{title}</h1>
+          <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-muted sm:text-[17px]">{intro}</p>
+          {data && data.total > 0 && (
+            <p className="mt-3 text-[13px] font-medium text-ink-2">
+              {data.total} {data.total === 1 ? "device" : "devices"} in store
+              {from != null && <> · from {formatPrice(from, settings.currency)}</>}
+            </p>
+          )}
+        </div>
+        {category && (
+          <div className="relative hidden h-32 w-32 shrink-0 sm:block lg:h-40 lg:w-40">
+            <Image src={`/categories/${category}.webp`} alt="" fill unoptimized className="object-contain mix-blend-multiply" />
+          </div>
+        )}
+      </header>
       <Filters current={current} facets={facets} total={data?.total ?? 0} />
 
       <div className="mt-8">
@@ -58,8 +94,8 @@ async function Catalog({ searchParams }: { searchParams: Promise<Search> }) {
           <Empty title="Nothing matches — yet." body="Try a different filter, or message us and we'll source it for you." />
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
-            {data.items.map((p) => (
-              <ProductCard key={p.id} product={p} currency={settings.currency} />
+            {data.items.map((p, i) => (
+              <ProductCard key={p.id} product={p} settings={settings} eager={i < 4} />
             ))}
           </div>
         )}
@@ -119,7 +155,7 @@ function Empty({ title, body }: { title: string; body: string }) {
 function CatalogSkeleton() {
   return (
     <>
-      <div className="skeleton mb-8 h-14 w-48 rounded-2xl" />
+      <div className="skeleton mb-8 h-40 rounded-[28px]" />
       <div className="mb-8 flex gap-2">
         {Array.from({ length: 6 }, (_, i) => (
           <div key={i} className="skeleton h-9 w-20 rounded-full" />
