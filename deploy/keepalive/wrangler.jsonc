@@ -6,6 +6,6 @@
   "workers_dev": false,
   // Every 10 minutes, 09:00–20:59 UTC ≈ 11 AM–11 PM in Cairo: store hours only, to save Render free hours.
   "triggers": { "crons": ["*/10 9-20 * * *"] },
-  "vars": { "TARGET_URL": "https://mobile-store-api.onrender.com/api/health" },
+  "vars": { "TARGET_URL": "https://mobile-store-api-t6s0.onrender.com/api/health" },
   "observability": { "enabled": true }
 }

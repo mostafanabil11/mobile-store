@@ -14,7 +14,7 @@
   // Runtime values read by server components (process.env.API_URL).
   // The same values must be present at build time too (rewrites + NEXT_PUBLIC_*), see package.json "deploy".
   "vars": {
-    "API_URL": "https://mobile-store-api.onrender.com",
+    "API_URL": "https://mobile-store-api-t6s0.onrender.com",
     "NEXT_PUBLIC_SITE_URL": "https://mobile-store.mostafa-nabil-arafa01.workers.dev"
   }
 }
