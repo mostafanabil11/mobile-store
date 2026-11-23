@@ -121,6 +121,15 @@ Sold and hidden products never appear in the store.
 
 ## Deployment
 
+Live:
+
+- Store: https://mobile-store.mostafa-nabil-arafa01.workers.dev (admin at `/admin`)
+- API: https://mobile-store-api-t6s0.onrender.com/api (Render service `mobile-store-api`, Frankfurt, free plan)
+- Database: MongoDB Atlas, database `mobile-store`
+
+Pushing to `master` redeploys the API on Render automatically. The store is redeployed manually with the
+`npm run deploy` command below.
+
 | Part | Host | Notes |
 | ---- | ---- | ----- |
 | API | Render web service (Node, free plan) | Photos live in MongoDB, so Render's temporary disk doesn't matter |
