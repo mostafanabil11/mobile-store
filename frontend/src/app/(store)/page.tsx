@@ -85,13 +85,14 @@ function MoreLink({ href, label, className }: { href: string; label: string; cla
 
 /* ---------------------------------- Hero ---------------------------------- */
 
-/** Default banner: Unsplash photo by Igor Omilaev (Unsplash License); its backdrop is #dddddd. */
+/** Default banner: Deep Blue iPhone 17 Pro render (GSMArena, demo only) on the site's #f5f5f7 backdrop. */
 const DEFAULT_HERO = "/hero.jpg";
 
 function Hero() {
   return (
-    <section className="overflow-hidden bg-[#dddddd]">
-      <div className="mx-auto max-w-[1120px] px-5 pt-12 text-center sm:pt-20">
+    <section className="overflow-hidden bg-bg-soft">
+      {/* z-10 keeps the copy and prices above the banner image below. */}
+      <div className="relative z-10 mx-auto max-w-[1120px] px-5 pt-12 text-center sm:pt-20">
         <p className="eyebrow rise mb-4 text-ink-2/70">New · Open box · Pre-owned</p>
         <Suspense
           fallback={
@@ -117,7 +118,7 @@ function Hero() {
             Pre-owned deals
           </Link>
         </div>
-        <Suspense fallback={<div className="mt-6 h-5" />}>
+        <Suspense fallback={<div className="mt-6 h-9" />}>
           <HeroPrices />
         </Suspense>
       </div>
@@ -150,25 +151,26 @@ async function HeroPrices() {
     fresh?.items[0] && { label: "New iPhone from", price: fresh.items[0].price, href: "/products?category=iphone&condition=new" },
     used?.items[0] && { label: "Pre-owned from", price: used.items[0].price, href: "/products?category=iphone&condition=used" },
   ].filter(Boolean) as { label: string; price: number; href: string }[];
-  if (!items.length) return <div className="mt-6 h-5" />;
+  if (!items.length) return <div className="mt-6 h-9" />;
   return (
-    <p className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[14px] text-ink-2">
-      {items.map((i, n) => (
-        <span key={i.label} className="flex items-center gap-4">
-          {n > 0 && <span className="hidden h-3 w-px bg-ink/20 sm:block" />}
-          <Link href={i.href} className="hover:text-ink">
-            {i.label} <span className="font-semibold text-ink">{formatPrice(i.price, s.currency)}</span>
-          </Link>
-        </span>
+    <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+      {items.map((i) => (
+        <Link
+          key={i.label}
+          href={i.href}
+          className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-white px-4 py-2 text-[13px] leading-none text-ink-2 shadow-[0_1px_2px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.06] transition-colors hover:text-ink sm:text-[14px]"
+        >
+          {i.label} <span className="font-semibold text-ink">{formatPrice(i.price, s.currency)}</span>
+        </Link>
       ))}
-    </p>
+    </div>
   );
 }
 
 async function HeroImage() {
   const s = await getSettings();
   return (
-    <div className="relative mx-auto -mt-2 aspect-[4/3] max-w-[1440px] sm:aspect-[2/1]">
+    <div className="relative mx-auto mt-4 aspect-[4/3] max-w-[1440px] sm:mt-2 sm:aspect-[2/1]">
       <Image
         src={s.heroImage || DEFAULT_HERO}
         alt=""

@@ -53,12 +53,12 @@ by `CATALOG_API_URL`.
 
 ## Home page banner
 
-The default banner (`frontend/public/hero.jpg`) is an [Unsplash photo by Igor Omilaev](https://unsplash.com/photos/lDWTfYhZ85w)
-(Unsplash License: free for commercial use), with its grey backdrop extended to 16:9. Upload your own in
-**Admin → Settings → Home page**.
+The default banner (`frontend/public/hero.jpg`) is the Deep Blue iPhone 17 Pro catalog render (GSMArena, watermarked,
+demo only) placed on the site's `#f5f5f7` background at 2:1. Upload your own in **Admin → Settings → Home page**.
 
-The category row uses `frontend/public/categories/{iphone,ipad,mac,watch,airpods,accessories}.webp`: DummyJSON demo
-renders, trimmed to 320×320 on white. Replace those six files to change them.
+The category images are `frontend/public/categories/{iphone,ipad,mac,watch,airpods,accessories}.webp`, 800×800 on
+white. The iPhone one is the same iPhone 17 Pro render recoloured to the Silver finish; the others are DummyJSON demo
+renders. Replace those six files to change them.
 
 ## Environment
 

@@ -30,7 +30,7 @@ export function HeroImageField({ value, onChange }: { value: string; onChange: (
   return (
     <div>
       <span className="mb-1.5 block text-[13px] font-medium text-ink-2">Banner image</span>
-      <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-[#dddddd] ring-1 ring-line-soft">
+      <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-bg-soft ring-1 ring-line-soft">
         <Image src={value || DEFAULT_HERO} alt="" fill unoptimized={!!value} sizes="600px" className="object-cover" />
         {!value && (
           <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-ink-2">
