@@ -8,34 +8,22 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { randomUUID } from 'node:crypto';
-import { mkdirSync } from 'node:fs';
-import { extname, join } from 'node:path';
-import { diskStorage } from 'multer';
+import { memoryStorage } from 'multer';
 import { AdminGuard } from '../auth/auth.guard.js';
+import { MediaService } from '../media/media.module.js';
 
-const UPLOAD_DIR = join(process.cwd(), 'uploads');
 const ALLOWED = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif']);
 
-/**
- * Stores product images on local disk and serves them from /uploads.
- * Swap for S3 / Cloudinary later without changing the API shape.
- */
+/** Admin photo uploads. Files are kept in memory briefly, then stored in MongoDB via MediaService. */
 @Controller('admin/uploads')
 @UseGuards(AdminGuard)
 export class UploadsController {
+  constructor(private readonly media: MediaService) {}
+
   @Post()
   @UseInterceptors(
     FilesInterceptor('files', 10, {
-      storage: diskStorage({
-        destination: (_req, _file, cb) => {
-          mkdirSync(UPLOAD_DIR, { recursive: true });
-          cb(null, UPLOAD_DIR);
-        },
-        filename: (_req, file, cb) => {
-          cb(null, `${randomUUID()}${extname(file.originalname).toLowerCase()}`);
-        },
-      }),
+      storage: memoryStorage(),
       limits: { fileSize: 10 * 1024 * 1024 },
       fileFilter: (_req, file, cb) => {
         if (ALLOWED.has(file.mimetype)) cb(null, true);
@@ -43,9 +31,10 @@ export class UploadsController {
       },
     }),
   )
-  upload(@UploadedFiles() files: Express.Multer.File[]) {
+  async upload(@UploadedFiles() files: Express.Multer.File[]) {
     if (!files?.length) throw new BadRequestException('No files uploaded');
-    return { urls: files.map((f) => `/uploads/${f.filename}`) };
+    const urls = await Promise.all(files.map((f) => this.media.save(f.buffer, f.mimetype)));
+    return { urls };
   }
 }
 

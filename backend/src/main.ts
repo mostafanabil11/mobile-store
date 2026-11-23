@@ -1,7 +1,6 @@
 import { Logger, StandardSchemaValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'node:path';
 import { AppModule } from './app.module.js';
 
 async function bootstrap() {
@@ -13,10 +12,6 @@ async function bootstrap() {
     credentials: true,
   });
   app.useGlobalPipes(new StandardSchemaValidationPipe());
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/uploads/',
-    maxAge: '30d',
-  });
 
   const port = Number(process.env.PORT ?? 4000);
   await app.listen(port);

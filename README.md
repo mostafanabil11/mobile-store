@@ -21,6 +21,13 @@ cd frontend && npm install && npm run dev
 
 Open http://localhost:3000 for the store and http://localhost:3000/admin for the dashboard.
 
+Product photos are stored in MongoDB (GridFS), not on disk. If you have photos from an older checkout in
+`backend/uploads/`, load them into your local database once (with the API running):
+
+```bash
+cd backend && npm run migrate -- --media-only --to "mongodb://127.0.0.1:27099/store"
+```
+
 - **No MongoDB yet?** Leave `MONGODB_URI` empty in `backend/.env`. The API starts an embedded MongoDB for development
   and keeps its data in `backend/.mongo-data`. Paste your Atlas/hosted URI into `MONGODB_URI` when you have it.
 - **First admin login:** created on first boot from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `backend/.env`. Change the
@@ -111,3 +118,37 @@ Sold and hidden products never appear in the store.
 - Product logic: variants vs. one listing per unit, which fields are required, warranty rules.
 - Image hosting for production (local disk now; S3/Cloudinary later).
 - Design iterations.
+
+## Deployment
+
+| Part | Host | Notes |
+| ---- | ---- | ----- |
+| API | Render web service (Node, free plan) | Photos live in MongoDB, so Render's temporary disk doesn't matter |
+| Store + admin | Cloudflare Workers via [OpenNext](https://opennext.js.org/cloudflare) | Config in `frontend/wrangler.jsonc` |
+| Database | MongoDB Atlas | Set `MONGODB_URI` on Render |
+
+**Backend (Render).** Build command `cd backend && npm ci --include=dev && npm run build`, start command
+`cd backend && npm run start:prod`, health check `/api/health`. Environment: `NODE_ENV=production`, `MONGODB_URI`,
+`JWT_SECRET`, `JWT_EXPIRES_IN`, `FRONTEND_URL`, `SEED_DEMO=false`, `CATALOG_API_URL`.
+
+**Copy local data to Atlas** (products, settings, admin account and the photos they use):
+
+```bash
+cd backend && npm run migrate -- --from "mongodb://127.0.0.1:27099/store" --to "<atlas uri>"
+```
+
+**Frontend (Cloudflare).** `API_URL` and `NEXT_PUBLIC_SITE_URL` are needed at build time and at runtime
+(`vars` in `wrangler.jsonc`):
+
+```bash
+cd frontend && API_URL=https://<api>.onrender.com NEXT_PUBLIC_SITE_URL=https://<site> npm run deploy
+```
+
+Two Next.js features are off because OpenNext on Workers doesn't support them yet: Cache Components (pages hang)
+and the Node.js `proxy.ts` middleware (signed-in requests fail). Admin pages redirect to login on the client, and
+the API checks the session on every request.
+
+**Keep-alive (optional).** `deploy/keepalive` is a Cloudflare cron Worker that pings `/api/health` every 10 minutes
+during store hours so the free Render service doesn't sleep. Deploy with `npx wrangler deploy` from that folder.
+Render's free plan has 750 instance-hours per month shared by all free services in a workspace.
+

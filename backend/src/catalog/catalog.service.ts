@@ -2,9 +2,7 @@ import { BadGatewayException, BadRequestException, Injectable, Logger, NotFoundE
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
-import { randomUUID } from 'node:crypto';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { MediaService } from '../media/media.module.js';
 import { Product } from '../products/product.schema.js';
 import { type CatalogDevice, displayName, mapDevice, nameKey, type RawDevice } from './catalog.mapper.js';
 import { fetchDummyJsonDevices, SLUG_PREFIX } from './dummyjson.source.js';
@@ -17,7 +15,6 @@ export interface ListedDevice {
 
 const LIST_TTL = 12 * 60 * 60 * 1000;
 const IMAGE_HOSTS = /(^|\.)(gsmarena\.com|dummyjson\.com)$/i;
-const UPLOAD_DIR = join(process.cwd(), 'uploads');
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 /**
@@ -36,6 +33,7 @@ export class CatalogService {
   constructor(
     config: ConfigService,
     @InjectModel(Product.name) private readonly products: Model<Product>,
+    private readonly media: MediaService,
   ) {
     this.base = (config.get<string>('CATALOG_API_URL') ?? 'https://phone-specs-api.vercel.app').replace(/\/$/, '');
   }
@@ -111,7 +109,7 @@ export class CatalogService {
     return device;
   }
 
-  /** Downloads catalog photos (in parallel) into /uploads so the store serves its own copies. */
+  /** Downloads catalog photos (in parallel) into the media store so the shop serves its own copies. */
   async importImages(urls: string[]): Promise<string[]> {
     const targets = urls.slice(0, 10).map((url) => {
       let parsed: URL;
@@ -125,7 +123,6 @@ export class CatalogService {
       }
       return parsed;
     });
-    await mkdir(UPLOAD_DIR, { recursive: true });
     const results = await Promise.all(targets.map((url) => this.download(url)));
     return results.filter((u): u is string => !!u);
   }
@@ -139,10 +136,8 @@ export class CatalogService {
     }
     const buffer = Buffer.from(await res.arrayBuffer());
     if (buffer.length > MAX_IMAGE_BYTES) return null;
-    const ext = type.includes('png') ? '.png' : type.includes('webp') ? '.webp' : '.jpg';
-    const file = `${randomUUID()}${ext}`;
-    await writeFile(join(UPLOAD_DIR, file), buffer);
-    return `/uploads/${file}`;
+    const contentType = type.split(';')[0].trim();
+    return this.media.save(buffer, MediaService.extensionFor(contentType) ? contentType : 'image/jpeg');
   }
 
   /** Best catalog match for a store product name, e.g. "iPad Pro 13″ (M5)" -> "iPad Pro 13 (2025)". */
