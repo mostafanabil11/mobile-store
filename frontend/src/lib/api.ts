@@ -13,8 +13,15 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * How long a page waits for the API. Render's free plan sleeps after 15 idle minutes and takes
+ * ~30-50s to wake; rather than leave visitors staring at an empty page, we give up after this and
+ * show a "waking up" notice that reloads the page once the API answers (see WakeBanner).
+ */
+const TIMEOUT_MS = 8_000;
+
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_URL}/api${path}`, { cache: "no-store" });
+  const res = await fetch(`${API_URL}/api${path}`, { cache: "no-store", signal: AbortSignal.timeout(TIMEOUT_MS) });
   if (!res.ok) throw new ApiError(res.status, `API ${res.status} on ${path}`);
   return res.json() as Promise<T>;
 }
@@ -36,14 +43,19 @@ const DEFAULT_SETTINGS: StoreSettings = {
   whatsappGreeting: "Hello! I'm interested in this item:",
 };
 
-/** Store settings, deduplicated per request. Falls back to defaults if the API is down. */
-export const getSettings = cache(async (): Promise<StoreSettings> => {
+/** Settings plus whether the API answered, deduplicated per request. */
+export const getSettingsState = cache(async (): Promise<{ settings: StoreSettings; online: boolean }> => {
   try {
-    return { ...DEFAULT_SETTINGS, ...(await get<Partial<StoreSettings>>("/settings")) };
+    return { settings: { ...DEFAULT_SETTINGS, ...(await get<Partial<StoreSettings>>("/settings")) }, online: true };
   } catch {
-    return DEFAULT_SETTINGS;
+    return { settings: DEFAULT_SETTINGS, online: false };
   }
 });
+
+/** Store settings, deduplicated per request. Falls back to defaults if the API is down. */
+export async function getSettings(): Promise<StoreSettings> {
+  return (await getSettingsState()).settings;
+}
 
 export type ProductQuery = Partial<
   Record<"q" | "category" | "condition" | "storage" | "sort" | "page" | "limit" | "featured" | "minPrice" | "maxPrice", string>

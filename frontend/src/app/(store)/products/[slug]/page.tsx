@@ -41,7 +41,9 @@ export default function ProductPage(props: PageProps<"/products/[slug]">) {
 
 async function ProductDetail({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [product, settings] = await Promise.all([getProduct(slug), getSettings()]);
+  const [product, settings] = await Promise.all([getProduct(slug).catch(() => undefined), getSettings()]);
+  // undefined = API unreachable (the wake banner explains and reloads); null = really not found.
+  if (product === undefined) return <DetailSkeleton />;
   if (!product) notFound();
 
   return (
